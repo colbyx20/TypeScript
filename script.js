@@ -11,13 +11,35 @@ app.use(express.json());
 app.use(urlencoded({extended:false}));
 app.use(cors());
 
-app.get('/api/user', async (req: any,res: any) =>{
+app.get('/api/user', async (req,res) =>{
   const users = await prisma.user.findMany();
   res.json(users);
   console.dir(users,{depth:null})
 });
 
-app.get('/api/allUsers', async (req:any, res:any) =>{
+
+
+app.post('/signup', async(req,res) =>{
+  const {name,email,posts} = req.body;
+  const postData = posts
+    ? posts.map((post) => {
+        return { title: post.title, content: post.content || undefined }
+      })
+    : []
+
+  const result = await prisma.user.create({
+    data:{
+      name,
+      email,
+      posts:{
+        create:postData,
+      },
+    },
+  })
+  res.json(result);
+})
+
+app.get('/api/allUsers', async (req, res) =>{
 
     const allUsers = await prisma.user.findMany({
       include:{
@@ -30,7 +52,7 @@ app.get('/api/allUsers', async (req:any, res:any) =>{
     console.dir(allUsers,{depth:null})
 });
 
-app.post('/api/user', async (req: any,res: any) => {
+app.post('/api/user', async (req,res) => {
   const {name,email} = req.body;
   console.log(name + " " + email);
   const addNewUser = await prisma.user.create({
@@ -44,7 +66,7 @@ app.post('/api/user', async (req: any,res: any) => {
 
 
 // broken for somereason...
-app.put('/api/updateUser/:id', async (req :any,res:any) =>{
+app.put('/api/updateUser/:id', async (req ,res) =>{
   const {id} = req.params;
   const {name} = req.body;
   console.log(`${id} ${name}`);
@@ -58,7 +80,7 @@ app.put('/api/updateUser/:id', async (req :any,res:any) =>{
 });
 
 app.listen(port,() =>{
-  console.log(`Server starting on port ${port}`);
+  console.log(`🚀 Server ready at: http://localhost:${port}`);
 });
 
 
