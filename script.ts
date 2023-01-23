@@ -3,11 +3,13 @@ const { urlencoded } = require('express');
 const dotenv = require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const port = process.env.PORT || 5001;
+const cors = require('cors');
 const prisma = new PrismaClient()
 const app = express();
 
 app.use(express.json());
 app.use(urlencoded({extended:false}));
+app.use(cors());
 
 app.get('/api/user', async (req: any,res: any) =>{
   const users = await prisma.user.findMany();
